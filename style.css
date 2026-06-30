@@ -453,3 +453,66 @@ body {
         font-size: 0.9rem;
     }
 }
+
+/* Login Modal & Overlay */
+.login-modal {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0.9);
+    background: white;
+    padding: 30px;
+    border-radius: var(--border-radius);
+    box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+    z-index: 1003;
+    width: 90%;
+    max-width: 400px;
+    transition: all 0.3s ease;
+}
+
+.login-modal.open {
+    display: block;
+    transform: translate(-50%, -50%) scale(1);
+}
+
+.login-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.5);
+    z-index: 1002;
+}
+
+.login-overlay.open {
+    display: block;
+}
+
+.close-login {
+    float: right;
+    cursor: pointer;
+    font-size: 1.5rem;
+    color: #888;
+}
+
+.logout-btn {
+    color: #E05353 !important; /* Warna merah untuk keluar */
+    font-weight: bold;
+    margin-left: 15px;
+}
+
+.login-card h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.5rem;
+    color: var(--primary-color);
+    margin-bottom: 5px;
+}
+
+.login-card p {
+    font-size: 0.85rem;
+    color: #888;
+    margin-bottom: 20px;
+}
