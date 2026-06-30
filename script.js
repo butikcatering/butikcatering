@@ -24,6 +24,7 @@ document.addEventListener("DOMContentLoaded", () => {
     bindFormEvent("form-menu", handleMenuSubmit);
     bindFormEvent("form-login", handleLoginSubmit);
     bindFormEvent("form-edit-menu", handleEditMenuSubmit);
+    bindFormEvent("form-edit-category", handleEditCategorySubmit);
 });
 
 // Helper untuk bind event form secara aman
@@ -40,6 +41,7 @@ async function initApp() {
     await fetchMenuItems();
     renderCatalog();
     populateCategoryDropdown();
+    renderCategoryList();
 }
 
 // ====== NAVIGATION TABS (Sangat responsif & cocok untuk layout APK) ======
@@ -225,6 +227,107 @@ function populateCategoryDropdown() {
         option.innerText = cat.name;
         select.appendChild(option);
     });
+}
+
+// ====== DAFTAR KATEGORI (ADMIN) - LIST, EDIT, HAPUS ======
+function renderCategoryList() {
+    const container = document.getElementById("category-list");
+    if (!container) return;
+    container.innerHTML = "";
+
+    if (categoriesList.length === 0) {
+        container.innerHTML = `<p class="category-list-empty">Belum ada kategori yang dibuat.</p>`;
+        return;
+    }
+
+    categoriesList.forEach(cat => {
+        const itemCount = menuItemsList.filter(item => item.category_id === cat.id).length;
+
+        const row = document.createElement("div");
+        row.className = "category-list-row";
+        row.innerHTML = `
+            <div>
+                <div class="cat-name-text">${cat.name}</div>
+                <div class="cat-item-count">${itemCount} item menu</div>
+            </div>
+            <div class="category-list-actions">
+                <button class="btn-cat-edit" onclick="editCategory(${cat.id})" title="Edit Kategori"><i class="fa-solid fa-pen-to-square"></i></button>
+                <button class="btn-cat-delete" onclick="deleteCategory(${cat.id})" title="Hapus Kategori"><i class="fa-solid fa-trash"></i></button>
+            </div>
+        `;
+        container.appendChild(row);
+    });
+}
+
+// Memicu munculnya data lama di Form Edit Kategori
+function editCategory(id) {
+    const cat = categoriesList.find(c => c.id === id);
+    if (!cat) return;
+
+    document.getElementById("edit-cat-id").value = cat.id;
+    document.getElementById("edit-cat-name").value = cat.name;
+    showEditCategoryModal();
+}
+
+async function handleEditCategorySubmit(e) {
+    e.preventDefault();
+
+    const id = document.getElementById("edit-cat-id").value;
+    const name = document.getElementById("edit-cat-name").value.trim();
+    if (!name) return;
+
+    const submitBtn = e.target.querySelector("button[type='submit']");
+    const originalBtnText = submitBtn.innerText;
+    submitBtn.innerText = "Menyimpan...";
+    submitBtn.disabled = true;
+
+    try {
+        const { error } = await supabaseClient
+            .from('categories')
+            .update({ name: name })
+            .eq('id', id);
+
+        if (error) throw error;
+
+        alert("Kategori berhasil diperbarui!");
+        hideEditCategoryModal();
+        initApp(); // Muat ulang visual (katalog, dropdown, dan daftar kategori)
+    } catch (error) {
+        console.error("Gagal mengedit kategori:", error);
+        alert("Gagal menyimpan perubahan: " + error.message);
+    } finally {
+        submitBtn.innerText = originalBtnText;
+        submitBtn.disabled = false;
+    }
+}
+
+// Hapus kategori. Kategori yang masih punya menu di dalamnya tidak boleh
+// dihapus langsung supaya tidak ada menu "yatim" tanpa kategori.
+async function deleteCategory(id) {
+    const itemCount = menuItemsList.filter(item => item.category_id === id).length;
+
+    if (itemCount > 0) {
+        alert(`Kategori ini masih memiliki ${itemCount} item menu. Hapus atau pindahkan menu tersebut terlebih dahulu sebelum menghapus kategorinya.`);
+        return;
+    }
+
+    const yakin = confirm("Apakah Anda yakin ingin menghapus kategori ini?");
+    if (!yakin) return;
+
+    try {
+        const { error } = await supabaseClient
+            .from('categories')
+            .delete()
+            .eq('id', id);
+
+        if (error) throw error;
+
+        alert("Kategori berhasil dihapus!");
+        initApp(); // Refresh data
+    } catch (error) {
+        console.error("Gagal menghapus kategori:", error);
+        alert("Gagal menghapus kategori: " + error.message);
+    }
 }
 
 // ====== KERANJANG BELANJA (Shopee Drawer Style) ======
@@ -666,6 +769,20 @@ function showEditMenuModal() {
 function hideEditMenuModal() {
     const modal = document.getElementById("edit-menu-modal");
     const overlay = document.getElementById("edit-menu-overlay");
+    if (modal) modal.classList.remove("open");
+    if (overlay) overlay.classList.remove("open");
+}
+
+function showEditCategoryModal() {
+    const modal = document.getElementById("edit-category-modal");
+    const overlay = document.getElementById("edit-category-overlay");
+    if (modal) modal.classList.add("open");
+    if (overlay) overlay.classList.add("open");
+}
+
+function hideEditCategoryModal() {
+    const modal = document.getElementById("edit-category-modal");
+    const overlay = document.getElementById("edit-category-overlay");
     if (modal) modal.classList.remove("open");
     if (overlay) overlay.classList.remove("open");
 }
