@@ -669,7 +669,6 @@ function hideEditMenuModal() {
     if (modal) modal.classList.remove("open");
     if (overlay) overlay.classList.remove("open");
 }
-
 // ====== PENGATUR STATUS LOGIN ADMIN ======
 function setupAuthListener() {
     supabaseClient.auth.onAuthStateChange((event, session) => {
@@ -693,7 +692,6 @@ function setupAuthListener() {
         renderCatalog(); // Segarkan ulang katalog untuk menyesuaikan tombol secara reaktif
     });
 }
-
 // ====== PROSES LOGOUT ADMIN ======
 async function logoutAdmin() {
     const yakin = confirm("Apakah Anda yakin ingin keluar dari Admin Panel?");
