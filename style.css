@@ -103,6 +103,39 @@ body {
     transition: var(--transition);
 }
 
+/* Tombol Hamburger - default disembunyikan, hanya muncul di HP */
+.hamburger-btn {
+    display: none;
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    color: var(--primary-color);
+    cursor: pointer;
+    padding: 8px;
+    z-index: 1101;
+    transition: var(--transition);
+}
+
+.hamburger-btn.open i::before {
+    content: "\f00d"; /* fa-xmark */
+}
+
+.nav-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(42, 36, 33, 0.4);
+    backdrop-filter: blur(4px);
+    z-index: 1099;
+}
+
+.nav-overlay.open {
+    display: block;
+}
+
 .cart-btn:hover {
     transform: scale(1.08);
     background: var(--accent-light);
@@ -154,6 +187,7 @@ body {
 }
 
 .hero-tag {
+    display: inline-block;
     font-size: 0.8rem;
     text-transform: uppercase;
     letter-spacing: 2px;
@@ -163,6 +197,10 @@ body {
     padding: 6px 16px;
     border-radius: 30px;
     box-shadow: var(--shadow-soft);
+    box-decoration-break: clone;
+    -webkit-box-decoration-break: clone;
+    max-width: 92%;
+    line-height: 1.6;
 }
 
 .hero h1 {
@@ -693,24 +731,71 @@ body {
 /* Responsive Layout */
 @media (max-width: 768px) {
     .navbar {
-        padding: 15px 5%;
+        padding: 14px 5%;
     }
     .logo {
-        font-size: 1.35rem;
+        font-size: 1.2rem;
     }
+    .logo i {
+        font-size: 1.05rem;
+    }
+
+    /* Tampilkan tombol hamburger di HP */
+    .hamburger-btn {
+        display: block;
+        order: 3;
+    }
+
+    .cart-btn {
+        order: 2;
+        font-size: 1.2rem;
+        padding: 10px;
+    }
+
+    /* Nav links jadi drawer dari kanan */
     .nav-links {
-        gap: 12px;
+        position: fixed;
+        top: 0;
+        right: -280px;
+        width: 260px;
+        height: 100%;
+        background: var(--white);
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 4px;
+        padding: 90px 24px 24px 24px;
+        box-shadow: -10px 0 40px rgba(0,0,0,0.1);
+        transition: right 0.35s cubic-bezier(0.25, 0.8, 0.25, 1);
+        z-index: 1100;
     }
+
+    .nav-links.open {
+        right: 0;
+    }
+
     .nav-links a {
-        font-size: 0.85rem;
-        padding: 6px 8px;
+        width: 100%;
+        font-size: 1rem;
+        padding: 12px 14px;
     }
+
+    #admin-nav {
+        flex-direction: column;
+        width: 100%;
+        gap: 4px;
+    }
+
     .hero {
-        padding: 50px 16px;
-        margin-bottom: 40px;
+        padding: 40px 18px;
+        margin-bottom: 36px;
+    }
+    .hero-tag {
+        font-size: 0.7rem;
+        letter-spacing: 1px;
+        padding: 6px 14px;
     }
     .hero h1 {
-        font-size: 2rem;
+        font-size: 1.7rem;
     }
     .hero p {
         font-size: 0.95rem;
@@ -721,6 +806,30 @@ body {
     }
     .admin-grid {
         grid-template-columns: 1fr;
+    }
+    .container {
+        padding: 24px 16px 80px 16px;
+    }
+    .category-title {
+        font-size: 1.5rem;
+    }
+}
+
+@media (max-width: 420px) {
+    .hero h1 {
+        font-size: 1.45rem;
+    }
+    .logo {
+        font-size: 1.05rem;
+    }
+    .menu-img {
+        height: 180px;
+    }
+    .location-section {
+        padding: 24px 14px;
+    }
+    .location-info h2 {
+        font-size: 1.5rem;
     }
 }
 
@@ -856,11 +965,20 @@ body {
 
 /* Bingkai Peta Premium */
 .location-map {
+    position: relative;
     height: 420px;
     border-radius: var(--border-radius-md);
     overflow: hidden;
     box-shadow: var(--shadow-medium);
     border: 1px solid rgba(93, 67, 55, 0.05);
+}
+
+.location-map iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
 }
 
 /* Responsif untuk Tampilan Layar HP */
