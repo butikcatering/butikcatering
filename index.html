@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Butik Catering - Sajian Elegan & Lezat</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- Google Fonts & Font Awesome Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..700;1,400..700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+    <!-- Navigation Header -->
+    <header class="navbar">
+        <div class="logo">
+            <i class="fa-solid fa-utensils"></i> Butik Catering
+        </div>
+        <nav class="nav-links">
+            <a href="#" onclick="switchTab('catalog')">Katalog</a>
+            <a href="#" onclick="switchTab('admin')">Admin Panel</a>
+            <a href="#" onclick="switchTab('history')">Histori Pesanan</a>
+        </nav>
+        <div class="cart-btn" onclick="toggleCart()">
+            <i class="fa-solid fa-shopping-bag"></i>
+            <span class="badge" id="cart-badge">0</span>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="container">
+        
+        <!-- Tab 1: Catalog Makanan (Sisi Pelanggan) -->
+        <section id="tab-catalog" class="tab-content active">
+            <div class="hero">
+                <h1>Sajian Istimewa untuk Momen Berharga</h1>
+                <p>Katering eksklusif dengan cita rasa premium, higienis, dan disajikan dengan sepenuh hati.</p>
+            </div>
+            
+            <!-- Tempat Kategori dan Menu dirender secara dinamis oleh JS -->
+            <div id="catalog-container">
+                <div class="loading">Memuat menu lezat...</div>
+            </div>
+        </section>
+
+        <!-- Tab 2: Admin Panel (Sisi Pengelola) -->
+        <section id="tab-admin" class="tab-content">
+            <div class="admin-header">
+                <h2>Kelola Menu Butik Catering</h2>
+                <p>Tambahkan kategori (Sub-menu) dan item menu katering Anda di sini.</p>
+            </div>
+
+            <div class="admin-grid">
+                <!-- Form Tambah Kategori -->
+                <div class="admin-card">
+                    <h3><i class="fa-solid fa-folder-plus"></i> Buat Kategori Baru</h3>
+                    <form id="form-category">
+                        <div class="input-group">
+                            <label>Nama Kategori (Contoh: Kue Kering, Nasi Kotak)</label>
+                            <input type="text" id="cat-name" placeholder="Masukkan nama kategori" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Simpan Kategori</button>
+                    </form>
+                </div>
+
+                <!-- Form Tambah Menu Baru -->
+                <div class="admin-card">
+                    <h3><i class="fa-solid fa-cookie-bite"></i> Tambah Item Menu</h3>
+                    <form id="form-menu">
+                        <div class="input-group">
+                            <label>Pilih Kategori</label>
+                            <select id="menu-cat-select" required>
+                                <option value="">-- Pilih Kategori --</option>
+                            </select>
+                        </div>
+                        <div class="input-group">
+                            <label>Judul Menu / Makanan</label>
+                            <input type="text" id="menu-title" placeholder="Contoh: Nastar Butter Premium" required>
+                        </div>
+                        <div class="input-group">
+                            <label>Harga (Rp)</label>
+                            <input type="number" id="menu-price" placeholder="Contoh: 85000" required>
+                        </div>
+                        <div class="input-group">
+                            <label>Keterangan / Deskripsi</label>
+                            <textarea id="menu-desc" rows="3" placeholder="Deskripsi rasa, ukuran stoples, dll." required></textarea>
+                        </div>
+                        <div class="input-group">
+                            <label>Link Gambar Menu (URL)</label>
+                            <input type="url" id="menu-img" placeholder="https://domain.com/gambar.jpg" required>
+                            <small class="hint">Tips: Gunakan hosting gambar gratis jika belum punya server gambar.</small>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Simpan Item Menu</button>
+                    </form>
+                </div>
+            </div>
+        </section>
+
+        <!-- Tab 3: Histori Pesanan -->
+        <section id="tab-history" class="tab-content">
+            <div class="admin-header">
+                <h2>Histori Pesanan Masuk</h2>
+                <p>Daftar pesanan pelanggan yang telah masuk ke sistem database.</p>
+            </div>
+            <div class="history-table-container">
+                <table class="history-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Nama</th>
+                            <th>No. WhatsApp</th>
+                            <th>Detail Pesanan</th>
+                            <th>Total Belanja</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="history-list">
+                        <tr>
+                            <td colspan="6" style="text-align: center;">Memuat histori pesanan...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Shopping Cart Sidebar (Gaya ala Shopee Drawer) -->
+    <div class="cart-sidebar" id="cart-sidebar">
+        <div class="cart-header">
+            <h3>Keranjang Belanja</h3>
+            <button class="close-btn" onclick="toggleCart()">&times;</button>
+        </div>
+        <div class="cart-items" id="cart-items-container">
+            <!-- Item belanjaan akan dirender di sini -->
+            <p class="empty-cart-msg">Keranjang Anda masih kosong.</p>
+        </div>
+        <div class="cart-footer">
+            <div class="cart-total">
+                <span>Total:</span>
+                <span id="cart-total-price">Rp 0</span>
+            </div>
+            
+            <!-- Form Identitas Pelanggan Sebelum Checkout -->
+            <div class="checkout-form">
+                <input type="text" id="cust-name" placeholder="Nama Anda" required>
+                <input type="tel" id="cust-phone" placeholder="No. WhatsApp (Contoh: 08123...)" required>
+            </div>
+            
+            <button class="btn btn-checkout" onclick="checkoutOrder()">
+                <i class="fa-brands fa-whatsapp"></i> Pesan Sekarang (Kirim WA)
+            </button>
+        </div>
+    </div>
+    <div class="cart-overlay" id="cart-overlay" onclick="toggleCart()"></div>
+
+    <!-- Supabase JS Client library -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="script.js"></script>
+</body>
+</html>
