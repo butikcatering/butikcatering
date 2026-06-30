@@ -7,23 +7,23 @@ const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 // ====== STATE APLIKASI ======
 let categoriesList = [];
 let menuItemsList = [];
-let cart = {}; 
+let cart = {}; // Format: { [itemId]: quantity }
 let orderHistoryList = [];
-let isAdmin = false; // Flag untuk mendeteksi status login admin
+let isAdmin = false; // Flag status login admin
 const WHATSAPP_NUMBER = "628123456789"; 
 
 // ====== EVENT INITIALIZATION ======
 document.addEventListener("DOMContentLoaded", () => {
     initApp();
     setupAuthListener();
-    setupPriceInputFormatting(); // Formatter harga di menu tambah
-    setupEditPriceInputFormatting(); // Formatter harga di menu edit
+    setupPriceInputFormatting();      // Format ribuan pada form Tambah Menu
+    setupEditPriceInputFormatting();  // Format ribuan pada form Edit Menu
     
-    // Bind form events safely
+    // Bind form events secara aman (mencegah crash jika elemen HTML belum siap)
     bindFormEvent("form-category", handleCategorySubmit);
     bindFormEvent("form-menu", handleMenuSubmit);
     bindFormEvent("form-login", handleLoginSubmit);
-    bindFormEvent("form-edit-menu", handleEditMenuSubmit); // Daftarkan handler edit
+    bindFormEvent("form-edit-menu", handleEditMenuSubmit);
 });
 
 // Helper untuk bind event form secara aman
@@ -171,7 +171,6 @@ function renderCatalog() {
                 let cartActionMarkup = "";
 
                 if (isAdmin) {
-                    // Hanya tampilkan kontrol kelola
                     adminActionMarkup = `
                         <div class="admin-card-actions">
                             <button class="btn-card-edit" onclick="editMenuItem(${item.id})"><i class="fa-solid fa-pen-to-square"></i> Edit</button>
@@ -179,7 +178,6 @@ function renderCatalog() {
                         </div>
                     `;
                 } else {
-                    // Hanya tampilkan kontrol belanja jika dikunjungi pelanggan
                     cartActionMarkup = `
                         <div class="action-btn-area" id="action-area-${item.id}">
                             ${qty > 0 ? renderQtyController(item.id, qty) : `<button class="btn-add" onclick="updateCartQty(${item.id}, 1)">Tambah</button>`}
@@ -229,7 +227,7 @@ function populateCategoryDropdown() {
     });
 }
 
-// ====== CART & SHOPEE-STYLE DRAWER ======
+// ====== KERANJANG BELANJA (Shopee Drawer Style) ======
 function toggleCart() {
     const sidebar = document.getElementById("cart-sidebar");
     const overlay = document.getElementById("cart-overlay");
@@ -261,7 +259,7 @@ function renderCart() {
     const cartEntries = Object.entries(cart);
 
     if (cartEntries.length === 0) {
-        container.innerHTML = `<p class="empty-cart-msg">Keranjang Anda masih kosong.</p>`;
+        container.innerHTML = `<p class="empty-cart-msg">Keranjang belanja Anda masih kosong.</p>`;
         const badge = document.getElementById("cart-badge");
         const totalText = document.getElementById("cart-total-price");
         if (badge) badge.innerText = 0;
@@ -294,6 +292,7 @@ function renderCart() {
     if (totalText) totalText.innerText = `Rp ${totalPrice.toLocaleString('id-ID')}`;
 }
 
+// ====== ACTION CHECKOUT (SAVE TO DATABASE & REDIRECT TO WA) ======
 async function checkoutOrder() {
     const nameInputEl = document.getElementById("cust-name");
     const phoneInputEl = document.getElementById("cust-phone");
@@ -334,6 +333,7 @@ async function checkoutOrder() {
     waMessage += `\n*Total Bayar: Rp ${totalPrice.toLocaleString('id-ID')}*\n\n`;
     waMessage += `*Detail Pengirim:*\nNama: ${nameInput}\nNo. HP: ${phoneInput}\n\nMohon dikonfirmasi pesanannya, terima kasih!`;
 
+    // Simpan ke database histori orders
     const { error } = await supabaseClient
         .from('orders')
         .insert([{
@@ -362,6 +362,7 @@ async function checkoutOrder() {
     window.open(waUrl, "_blank");
 }
 
+// ====== VIEW HISTORY PESANAN ======
 function renderHistoryTable() {
     const tbody = document.getElementById("history-list");
     if (!tbody) return;
@@ -412,7 +413,7 @@ async function handleMenuSubmit(e) {
     const title = document.getElementById("menu-title").value.trim();
     
     const rawPrice = document.getElementById("menu-price").value;
-    const price = rawPrice.replace(/\./g, ""); // hilangkan titik
+    const price = rawPrice.replace(/\./g, ""); // hilangkan titik pembatas
 
     const description = document.getElementById("menu-desc").value.trim();
     const imgFileInput = document.getElementById("menu-img");
@@ -433,6 +434,7 @@ async function handleMenuSubmit(e) {
         const fileName = `${Date.now()}-${Math.random().toString(36).substring(2, 15)}.${fileExt}`;
         const filePath = `menus/${fileName}`;
 
+        // Upload ke bucket 'menu-images'
         const { data: uploadData, error: uploadError } = await supabaseClient
             .storage
             .from('menu-images')
@@ -449,6 +451,7 @@ async function handleMenuSubmit(e) {
         
         const imageUrl = urlData.publicUrl;
 
+        // Tulis data ke tabel 'menu_items'
         const { error: dbError } = await supabaseClient
             .from('menu_items')
             .insert([{
@@ -486,6 +489,7 @@ async function handleLoginSubmit(e) {
     let usernameInput = document.getElementById("login-email").value.trim();
     const password = document.getElementById("login-password").value;
 
+    // Supabase membutuhkan format email. Kita secara otomatis mengubah input admin di latar belakang
     if (!usernameInput.includes("@")) {
         usernameInput = `${usernameInput}@butikcatering.com`;
     }
@@ -644,6 +648,7 @@ function showLoginModal() {
     if (overlay) overlay.classList.add("open");
 }
 
+// ====== KONTROL POPUPS MODAL ======
 function hideLoginModal() {
     const modal = document.getElementById("login-modal");
     const overlay = document.getElementById("login-overlay");
@@ -682,7 +687,7 @@ function setupAuthListener() {
             if (loginNav) loginNav.style.display = "inline";
             switchTab('catalog'); 
         }
-        renderCatalog(); // Segarkan ulang katalog untuk memunculkan/menyembunyikan tombol Edit & Hapus secara otomatis
+        renderCatalog(); // Segarkan ulang katalog untuk menyesuaikan tombol secara reaktif
     });
 }
 
