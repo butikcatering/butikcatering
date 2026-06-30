@@ -165,13 +165,24 @@ function renderCatalog() {
             items.forEach(item => {
                 const qty = cart[item.id] || 0;
                 
-                // Set tombol aksi khusus Admin jika login aktif
+                // JIKA ADMIN LOGIN: Tampilkan Edit & Hapus, SEMBUNYIKAN Tombol "Tambah ke Keranjang"
+                // JIKA PELANGGAN: Sembunyikan Edit & Hapus, TAMPILKAN Tombol "Tambah ke Keranjang"
                 let adminActionMarkup = "";
+                let cartActionMarkup = "";
+
                 if (isAdmin) {
+                    // Hanya tampilkan kontrol kelola
                     adminActionMarkup = `
                         <div class="admin-card-actions">
                             <button class="btn-card-edit" onclick="editMenuItem(${item.id})"><i class="fa-solid fa-pen-to-square"></i> Edit</button>
                             <button class="btn-card-delete" onclick="deleteMenuItem(${item.id})"><i class="fa-solid fa-trash"></i> Hapus</button>
+                        </div>
+                    `;
+                } else {
+                    // Hanya tampilkan kontrol belanja jika dikunjungi pelanggan
+                    cartActionMarkup = `
+                        <div class="action-btn-area" id="action-area-${item.id}">
+                            ${qty > 0 ? renderQtyController(item.id, qty) : `<button class="btn-add" onclick="updateCartQty(${item.id}, 1)">Tambah</button>`}
                         </div>
                     `;
                 }
@@ -185,9 +196,7 @@ function renderCatalog() {
                         <p class="menu-item-desc">${item.description}</p>
                         <div class="menu-item-footer">
                             <span class="menu-item-price">Rp ${parseFloat(item.price).toLocaleString('id-ID')}</span>
-                            <div class="action-btn-area" id="action-area-${item.id}">
-                                ${qty > 0 ? renderQtyController(item.id, qty) : `<button class="btn-add" onclick="updateCartQty(${item.id}, 1)">Tambah</button>`}
-                            </div>
+                            ${cartActionMarkup}
                         </div>
                         ${adminActionMarkup}
                     </div>
