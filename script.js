@@ -675,16 +675,19 @@ function setupAuthListener() {
     supabaseClient.auth.onAuthStateChange((event, session) => {
         const adminNav = document.getElementById("admin-nav");
         const loginNav = document.getElementById("login-nav");
+        const cartBtn = document.querySelector(".cart-btn"); // Ambil elemen tombol keranjang belanja
 
         if (session) {
             isAdmin = true; // Nyalakan flag admin
             if (adminNav) adminNav.style.display = "inline";
             if (loginNav) loginNav.style.display = "none";
+            if (cartBtn) cartBtn.style.display = "none"; // SEMBUNYIKAN ikon keranjang katering untuk Admin
             hideLoginModal();
         } else {
             isAdmin = false; // Matikan flag admin
             if (adminNav) adminNav.style.display = "none";
             if (loginNav) loginNav.style.display = "inline";
+            if (cartBtn) cartBtn.style.display = "flex"; // TAMPILKAN kembali ikon keranjang katering untuk Pelanggan
             switchTab('catalog'); 
         }
         renderCatalog(); // Segarkan ulang katalog untuk menyesuaikan tombol secara reaktif
