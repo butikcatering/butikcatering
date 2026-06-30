@@ -128,7 +128,7 @@ function renderCatalog() {
                 const card = document.createElement("div");
                 card.className = "menu-card";
                 card.innerHTML = `
-                    <img class="menu-img" src="${item.image_url}" alt="${item.title}" onerror="this.src='https://placehold.co/600x400?text=Kue+Butik+Catering'">
+                    <img class="menu-img" src="${item.image_url}" alt="${item.title}" onerror="this.src='https://placehold.co/600x400?text=ussername'">
                     <div class="menu-body">
                         <h3 class="menu-item-title">${item.title}</h3>
                         <p class="menu-item-desc">${item.description}</p>
