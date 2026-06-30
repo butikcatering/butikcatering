@@ -33,8 +33,7 @@ body {
     position: sticky;
     top: 0;
     z-index: 100;
-    background: rgba(250, 248, 245, 0.9);
-    backdrop-filter: blur(12px);
+    background: #FCFAF7;
     display: flex;
     justify-content: space-between;
     align-items: center;
