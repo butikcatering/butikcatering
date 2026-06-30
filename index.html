@@ -87,10 +87,11 @@
                             <textarea id="menu-desc" rows="3" placeholder="Deskripsi rasa, ukuran stoples, dll." required></textarea>
                         </div>
                         <div class="input-group">
-                            <label>Link Gambar Menu (URL)</label>
-                            <input type="url" id="menu-img" placeholder="https://domain.com/gambar.jpg" required>
-                            <small class="hint">Tips: Gunakan hosting gambar gratis jika belum punya server gambar.</small>
-                        </div>
+    <label>Upload Gambar Menu (Foto)</label>
+    <!-- Kita ubah menjadi tipe 'file' agar admin bisa memilih foto langsung -->
+    <input type="file" id="menu-img" accept="image/*" required>
+    <small class="hint">Disarankan format JPG, PNG, atau WEBP.</small>
+</div>
                         <button type="submit" class="btn btn-primary">Simpan Item Menu</button>
                     </form>
                 </div>
