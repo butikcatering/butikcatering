@@ -3,31 +3,30 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Butik Catering - Sajian Elegan & Lezat</title>
+    <title>Butik Catering - Sajian Elegan & Premium</title>
     <link rel="stylesheet" href="style.css">
     <!-- Google Fonts & Font Awesome Icons -->
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..700;1,400..700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..700;1,400..700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    (<link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-  <!-- Navigation Header -->
+    <!-- Navigation Header -->
     <header class="navbar">
         <div class="logo">
             <i class="fa-solid fa-utensils"></i> Butik Catering
         </div>
         <nav class="nav-links">
-            <a href="#" onclick="switchTab('catalog')">Katalog</a>
+            <a href="#" onclick="switchTab('catalog')" class="active-nav" id="nav-catalog">Katalog</a>
             
-            <!-- Menu khusus Admin (Akan disembunyikan secara default) -->
+            <!-- Menu khusus Admin (Tersembunyi secara default) -->
             <span id="admin-nav" style="display: none;">
-                <a href="#" onclick="switchTab('admin')">Kelola Menu</a>
-                <a href="#" onclick="switchTab('history')">Histori Pesanan</a>
+                <a href="#" onclick="switchTab('admin')" id="nav-admin">Kelola Menu</a>
+                <a href="#" onclick="switchTab('history')" id="nav-history">Histori Pesanan</a>
                 <a href="#" onclick="logoutAdmin()" class="logout-btn"><i class="fa-solid fa-sign-out-alt"></i> Keluar</a>
             </span>
 
-            <!-- Tombol Login (Hanya muncul jika belum login) -->
+            <!-- Tombol Login (Muncul jika belum login) -->
             <a href="#" id="login-nav" onclick="showLoginModal()"><i class="fa-solid fa-lock"></i> Admin Login</a>
         </nav>
         <div class="cart-btn" onclick="toggleCart()">
@@ -42,21 +41,25 @@
         <!-- Tab 1: Catalog Makanan (Sisi Pelanggan) -->
         <section id="tab-catalog" class="tab-content active">
             <div class="hero">
+                <span class="hero-tag">Premium Catering Service</span>
                 <h1>Sajian Istimewa untuk Momen Berharga</h1>
-                <p>Katering eksklusif dengan cita rasa premium, higienis, dan disajikan dengan sepenuh hati.</p>
+                <p>Katering butik eksklusif dengan cita rasa tinggi, disajikan higienis, estetis, dan penuh kehangatan.</p>
             </div>
             
             <!-- Tempat Kategori dan Menu dirender secara dinamis oleh JS -->
             <div id="catalog-container">
-                <div class="loading">Memuat menu lezat...</div>
+                <div class="loading-spinner">
+                    <div class="spinner"></div>
+                    <p>Meracik menu lezat untuk Anda...</p>
+                </div>
             </div>
         </section>
 
         <!-- Tab 2: Admin Panel (Sisi Pengelola) -->
         <section id="tab-admin" class="tab-content">
             <div class="admin-header">
-                <h2>Kelola Menu Butik Catering</h2>
-                <p>Tambahkan kategori (Sub-menu) dan item menu katering Anda di sini.</p>
+                <h2>Kelola Butik Catering</h2>
+                <p>Sistem manajemen submenu kategori dan penambahan hidangan premium katering Anda.</p>
             </div>
 
             <div class="admin-grid">
@@ -65,8 +68,8 @@
                     <h3><i class="fa-solid fa-folder-plus"></i> Buat Kategori Baru</h3>
                     <form id="form-category">
                         <div class="input-group">
-                            <label>Nama Kategori (Contoh: Kue Kering, Nasi Kotak)</label>
-                            <input type="text" id="cat-name" placeholder="Masukkan nama kategori" required>
+                            <label>Nama Kategori / Submenu</label>
+                            <input type="text" id="cat-name" placeholder="Contoh: Kue Kering, Nasi Kotak, Dessert" required>
                         </div>
                         <button type="submit" class="btn btn-primary">Simpan Kategori</button>
                     </form>
@@ -88,18 +91,23 @@
                         </div>
                         <div class="input-group">
                             <label>Harga (Rp)</label>
-                            <input type="number" id="menu-price" placeholder="Contoh: 85000" required>
+                            <!-- Input tipe text dengan inputmode numeric agar otomatis dipisah titik di HP -->
+                            <input type="text" id="menu-price" inputmode="numeric" placeholder="Contoh: 85.000" required>
                         </div>
                         <div class="input-group">
                             <label>Keterangan / Deskripsi</label>
-                            <textarea id="menu-desc" rows="3" placeholder="Deskripsi rasa, ukuran stoples, dll." required></textarea>
+                            <textarea id="menu-desc" rows="3" placeholder="Deskripsi rasa, porsi, diameter stoples, dll." required></textarea>
                         </div>
                         <div class="input-group">
-    <label>Upload Gambar Menu (Foto)</label>
-    <!-- Kita ubah menjadi tipe 'file' agar admin bisa memilih foto langsung -->
-    <input type="file" id="menu-img" accept="image/*" required>
-    <small class="hint">Disarankan format JPG, PNG, atau WEBP.</small>
-</div>
+                            <label>Upload Gambar Menu (Foto)</label>
+                            <div class="file-upload-wrapper">
+                                <input type="file" id="menu-img" accept="image/*" required>
+                                <div class="file-upload-design">
+                                    <i class="fa-solid fa-cloud-arrow-up"></i>
+                                    <span>Pilih atau Tarik Foto Menu</span>
+                                </div>
+                            </div>
+                        </div>
                         <button type="submit" class="btn btn-primary">Simpan Item Menu</button>
                     </form>
                 </div>
@@ -110,7 +118,7 @@
         <section id="tab-history" class="tab-content">
             <div class="admin-header">
                 <h2>Histori Pesanan Masuk</h2>
-                <p>Daftar pesanan pelanggan yang telah masuk ke sistem database.</p>
+                <p>Seluruh riwayat daftar belanja katering pelanggan yang masuk ke dalam database.</p>
             </div>
             <div class="history-table-container">
                 <table class="history-table">
@@ -126,7 +134,7 @@
                     </thead>
                     <tbody id="history-list">
                         <tr>
-                            <td colspan="6" style="text-align: center;">Memuat histori pesanan...</td>
+                            <td colspan="6" style="text-align: center; color: var(--text-muted);">Memuat histori pesanan...</td>
                         </tr>
                     </tbody>
                 </table>
@@ -135,14 +143,13 @@
 
     </main>
 
-    <!-- Shopping Cart Sidebar (Gaya ala Shopee Drawer) -->
+    <!-- Shopping Cart Sidebar (Shopee Drawer Style) -->
     <div class="cart-sidebar" id="cart-sidebar">
         <div class="cart-header">
-            <h3>Keranjang Belanja</h3>
+            <h3>Keranjang Katering</h3>
             <button class="close-btn" onclick="toggleCart()">&times;</button>
         </div>
         <div class="cart-items" id="cart-items-container">
-            <!-- Item belanjaan akan dirender di sini -->
             <p class="empty-cart-msg">Keranjang Anda masih kosong.</p>
         </div>
         <div class="cart-footer">
@@ -151,34 +158,34 @@
                 <span id="cart-total-price">Rp 0</span>
             </div>
             
-            <!-- Form Identitas Pelanggan Sebelum Checkout -->
+            <!-- Identitas Pelanggan -->
             <div class="checkout-form">
-                <input type="text" id="cust-name" placeholder="Nama Anda" required>
-                <input type="tel" id="cust-phone" placeholder="No. WhatsApp (Contoh: 08123...)" required>
+                <div class="input-group">
+                    <input type="text" id="cust-name" placeholder="Nama Lengkap Anda" required>
+                </div>
+                <div class="input-group">
+                    <input type="tel" id="cust-phone" placeholder="No. WhatsApp (Contoh: 08123...)" required>
+                </div>
             </div>
             
             <button class="btn btn-checkout" onclick="checkoutOrder()">
-                <i class="fa-brands fa-whatsapp"></i> Pesan Sekarang (Kirim WA)
+                <i class="fa-brands fa-whatsapp"></i> Hubungkan ke WhatsApp
             </button>
         </div>
     </div>
     <div class="cart-overlay" id="cart-overlay" onclick="toggleCart()"></div>
 
-    <!-- Supabase JS Client library -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="script.js"></script>
-    <!-- Login Modal (Sembunyi secara default) -->
+    <!-- Login Modal (Sisi Pengelola) -->
     <div class="login-modal" id="login-modal">
         <div class="login-card">
             <span class="close-login" onclick="hideLoginModal()">&times;</span>
-            <h3>Login Admin</h3>
-            <p>Khusus pengelola Butik Catering</p>
+            <h3>Login Pengelola</h3>
+            <p>Masukkan hak akses Admin Butik Catering Anda</p>
             <form id="form-login">
                 <div class="input-group">
-    <!-- Kita ubah label menjadi Username dan tipe input menjadi text -->
-    <label>Username Admin</label>
-    <input type="text" id="login-email" placeholder="butikcatering" required>
-</div>
+                    <label>Username Admin</label>
+                    <input type="text" id="login-email" placeholder="butikcatering" required>
+                </div>
                 <div class="input-group">
                     <label>Password</label>
                     <input type="password" id="login-password" placeholder="••••••••" required>
@@ -188,5 +195,9 @@
         </div>
     </div>
     <div class="login-overlay" id="login-overlay" onclick="hideLoginModal()"></div>
+
+    <!-- Supabase JS Client library -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="script.js"></script>
 </body>
 </html>
