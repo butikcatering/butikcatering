@@ -1,4 +1,4 @@
-// ====== CONFIG SUPABASE (Hubungkan dengan project Anda) ======
+// ====== CONFIG SUPABASE ======
 const SUPABASE_URL = 'https://lqnkysmcfldmwxrwsbuj.supabase.co'; 
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imxxbmt5c21jZmxkbXd4cndzYnVqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI4MjUzMjgsImV4cCI6MjA5ODQwMTMyOH0._FCvLNNit802Z-SxoxnntOH80hyCnpwzbGzd-i-vbRI'; 
 
@@ -7,18 +7,28 @@ const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 // ====== STATE APLIKASI ======
 let categoriesList = [];
 let menuItemsList = [];
-let cart = {}; // Format: { [itemId]: quantity }
+let cart = {}; 
 let orderHistoryList = [];
-
-// No WhatsApp Penerima (Butik Catering) - Format Kode Negara tanpa '+' atau '0' di depan. Contoh: 628123456789
 const WHATSAPP_NUMBER = "628123456789"; 
 
 // ====== EVENT INITIALIZATION ======
 document.addEventListener("DOMContentLoaded", () => {
     initApp();
-    setupFormListeners();
-    setupAuthListener(); // Jalankan pengawas status login admin
+    setupAuthListener();
+    
+    // Bind form events safely
+    bindFormEvent("form-category", handleCategorySubmit);
+    bindFormEvent("form-menu", handleMenuSubmit);
+    bindFormEvent("form-login", handleLoginSubmit);
 });
+
+// Helper untuk bind event form secara aman (anti-crash jika HTML belum ter-update)
+function bindFormEvent(formId, handlerFunc) {
+    const formElement = document.getElementById(formId);
+    if (formElement) {
+        formElement.addEventListener("submit", handlerFunc);
+    }
+}
 
 // Load Data Awal
 async function initApp() {
@@ -31,22 +41,19 @@ async function initApp() {
 // ====== NAVIGATION TABS (Sangat responsif & cocok untuk layout APK) ======
 function switchTab(tabId) {
     const targetTab = document.getElementById(`tab-${tabId}`);
-    if (!targetTab) return; // Mencegah crash jika element tab tidak ditemukan di HTML
+    if (!targetTab) return;
 
     document.querySelectorAll('.tab-content').forEach(tab => {
         tab.classList.remove('active');
     });
     targetTab.classList.add('active');
     
-    // Hanya ambil histori dari database jika tab yang dibuka adalah histori pesanan
     if (tabId === 'history') {
         fetchOrderHistory();
     }
 }
 
 // ====== DATABASE OPERATIONS (FETCH) ======
-
-// Ambil Kategori dari Supabase
 async function fetchCategories() {
     try {
         const { data, error } = await supabaseClient
@@ -61,7 +68,6 @@ async function fetchCategories() {
     }
 }
 
-// Ambil Menu dari Supabase
 async function fetchMenuItems() {
     try {
         const { data, error } = await supabaseClient
@@ -75,7 +81,6 @@ async function fetchMenuItems() {
     }
 }
 
-// Ambil History Pesanan dari Supabase
 async function fetchOrderHistory() {
     try {
         const { data, error } = await supabaseClient
@@ -94,7 +99,7 @@ async function fetchOrderHistory() {
 // ====== RENDER UI (Sisi Pelanggan) ======
 function renderCatalog() {
     const container = document.getElementById("catalog-container");
-    if (!container) return; // Cegah crash jika container catalog tidak ada
+    if (!container) return;
     container.innerHTML = "";
 
     if (categoriesList.length === 0) {
@@ -103,18 +108,13 @@ function renderCatalog() {
     }
 
     categoriesList.forEach(category => {
-        // Cari menu yang berasosiasi dengan kategori saat ini
         const items = menuItemsList.filter(item => item.category_id === category.id);
-        
-        // Buat Section Kategori (Submenu Custom)
         const section = document.createElement("div");
         section.className = "category-section";
         
         section.innerHTML = `
             <h2 class="category-title">${category.name}</h2>
-            <div class="menu-grid" id="category-grid-${category.id}">
-                <!-- Menu Card Items -->
-            </div>
+            <div class="menu-grid" id="category-grid-${category.id}"></div>
         `;
         
         container.appendChild(section);
@@ -146,7 +146,6 @@ function renderCatalog() {
     });
 }
 
-// Tombol Penambah/Pengurang Qty Ala-ala Shopee
 function renderQtyController(itemId, qty) {
     return `
         <div class="qty-controller">
@@ -157,7 +156,6 @@ function renderQtyController(itemId, qty) {
     `;
 }
 
-// Dropdown Kategori di form Admin
 function populateCategoryDropdown() {
     const select = document.getElementById("menu-cat-select");
     if (!select) return;
@@ -170,7 +168,7 @@ function populateCategoryDropdown() {
     });
 }
 
-// ====== CART & SHOPEE-STYLE DRAWER LOGIC ======
+// ====== CART & SHOPEE-STYLE DRAWER ======
 function toggleCart() {
     const sidebar = document.getElementById("cart-sidebar");
     const overlay = document.getElementById("cart-overlay");
@@ -189,7 +187,7 @@ function updateCartQty(itemId, change) {
     }
 
     renderCart();
-    renderCatalog(); // sync tampilan catalog depan
+    renderCatalog();
 }
 
 function renderCart() {
@@ -235,7 +233,6 @@ function renderCart() {
     if (totalText) totalText.innerText = `Rp ${totalPrice.toLocaleString('id-ID')}`;
 }
 
-// ====== ACTION CHECKOUT (SAVE TO SUPABASE & REDIRECT TO WA) ======
 async function checkoutOrder() {
     const nameInputEl = document.getElementById("cust-name");
     const phoneInputEl = document.getElementById("cust-phone");
@@ -254,7 +251,6 @@ async function checkoutOrder() {
         return;
     }
 
-    // Bangun daftar belanja JSON untuk database dan Teks WA
     const itemsPayload = [];
     let waMessage = `Halo *Butik Catering*, saya ingin memesan:\n\n`;
     let totalPrice = 0;
@@ -277,7 +273,6 @@ async function checkoutOrder() {
     waMessage += `\n*Total Bayar: Rp ${totalPrice.toLocaleString('id-ID')}*\n\n`;
     waMessage += `*Detail Pengirim:*\nNama: ${nameInput}\nNo. HP: ${phoneInput}\n\nMohon dikonfirmasi pesanannya, terima kasih!`;
 
-    // 1. Simpan ke Database Supabase (Untuk Catatan History)
     const { error } = await supabaseClient
         .from('orders')
         .insert([{
@@ -294,7 +289,6 @@ async function checkoutOrder() {
         return;
     }
 
-    // 2. Kosongkan Keranjang & Reset Form
     cart = {};
     renderCart();
     renderCatalog();
@@ -302,13 +296,11 @@ async function checkoutOrder() {
     nameInputEl.value = "";
     phoneInputEl.value = "";
 
-    // 3. Alihkan ke WhatsApp Web / Aplikasi
     const encodedMessage = encodeURIComponent(waMessage);
     const waUrl = `https://api.whatsapp.com/send?phone=${WHATSAPP_NUMBER}&text=${encodedMessage}`;
     window.open(waUrl, "_blank");
 }
 
-// ====== VIEW HISTORY PESANAN ======
 function renderHistoryTable() {
     const tbody = document.getElementById("history-list");
     if (!tbody) return;
@@ -320,9 +312,7 @@ function renderHistoryTable() {
     }
 
     orderHistoryList.forEach(order => {
-        // Gabung list item jadi teks ringkas
         const itemsList = order.items.map(i => `${i.title} (${i.qty}x)`).join(", ");
-        
         const row = document.createElement("tr");
         row.innerHTML = `
             <td>#${order.id}</td>
@@ -336,147 +326,123 @@ function renderHistoryTable() {
     });
 }
 
-// ====== FORM SUBMIT LISTENERS ======
-function setupFormListeners() {
-    // Submit Kategori Baru
-    const formCategory = document.getElementById("form-category");
-    if (formCategory) {
-        formCategory.addEventListener("submit", async (e) => {
-            e.preventDefault();
-            const catNameInput = document.getElementById("cat-name").value.trim();
+// ====== HANDLER SUBMIT FORM (SISI ADMIN) ======
 
-            const { error } = await supabaseClient
-                .from('categories')
-                .insert([{ name: catNameInput }]);
+async function handleCategorySubmit(e) {
+    e.preventDefault();
+    const catNameInput = document.getElementById("cat-name").value.trim();
 
-            if (error) {
-                alert("Gagal menambahkan kategori!");
-            } else {
-                alert("Kategori berhasil ditambahkan!");
-                document.getElementById("cat-name").value = "";
-                initApp(); // Refetch & render
-            }
-        });
-    }
+    const { error } = await supabaseClient
+        .from('categories')
+        .insert([{ name: catNameInput }]);
 
-    // Submit Menu Baru (Dengan Fitur Upload Foto langsung ke Supabase Storage)
-    const formMenu = document.getElementById("form-menu");
-    if (formMenu) {
-        formMenu.addEventListener("submit", async (e) => {
-            e.preventDefault();
-            
-            const categoryId = document.getElementById("menu-cat-select").value;
-            const title = document.getElementById("menu-title").value.trim();
-            const price = document.getElementById("menu-price").value;
-            const description = document.getElementById("menu-desc").value.trim();
-            
-            // Ambil file foto dari input
-            const imgFileInput = document.getElementById("menu-img");
-            const file = imgFileInput ? imgFileInput.files[0] : null;
-            
-            if (!file) {
-                alert("Silakan pilih file gambar katering terlebih dahulu!");
-                return;
-            }
-
-            try {
-                // Tampilkan pesan proses
-                const submitBtn = e.target.querySelector("button[type='submit']");
-                const originalBtnText = submitBtn.innerText;
-                submitBtn.innerText = "Mengunggah Gambar...";
-                submitBtn.disabled = true;
-
-                // 1. Buat nama file yang unik agar gambar tidak saling menimpa di storage
-                const fileExt = file.name.split('.').pop();
-                const fileName = `${Date.now()}-${Math.random().toString(36).substring(2, 15)}.${fileExt}`;
-                const filePath = `menus/${fileName}`; // Disimpan di dalam folder 'menus' di dalam bucket
-
-                // 2. Proses upload file ke Supabase Storage Bucket 'menu-images'
-                const { data: uploadData, error: uploadError } = await supabaseClient
-                    .storage
-                    .from('menu-images')
-                    .upload(filePath, file);
-
-                if (uploadError) {
-                    throw uploadError;
-                }
-
-                // 3. Ambil URL Publik dari foto yang berhasil diunggah
-                const { data: urlData } = supabaseClient
-                    .storage
-                    .from('menu-images')
-                    .getPublicUrl(filePath);
-                
-                const imageUrl = urlData.publicUrl; // Ini adalah link foto online Anda
-
-                // 4. Simpan data menu makanan lengkap beserta link foto tadi ke tabel 'menu_items'
-                const { error: dbError } = await supabaseClient
-                    .from('menu_items')
-                    .insert([{
-                        category_id: categoryId,
-                        title: title,
-                        price: parseFloat(price),
-                        description: description,
-                        image_url: imageUrl // Menyimpan URL publik hasil upload
-                    }]);
-
-                if (dbError) {
-                    throw dbError;
-                }
-
-                alert("Menu baru berhasil disimpan beserta foto!");
-                
-                // Reset form & kembalikan tombol
-                document.getElementById("form-menu").reset();
-                submitBtn.innerText = originalBtnText;
-                submitBtn.disabled = false;
-
-                // Muat ulang data katalog di sisi pelanggan agar langsung muncul menu barunya
-                initApp(); 
-
-            } catch (error) {
-                console.error("Terjadi kesalahan:", error);
-                alert("Gagal menambahkan menu: " + error.message);
-                
-                // Kembalikan tombol jika gagal
-                const submitBtn = e.target.querySelector("button[type='submit']");
-                if (submitBtn) {
-                    submitBtn.innerText = "Simpan Item Menu";
-                    submitBtn.disabled = false;
-                }
-            }
-        });
-    }
-
-    // Event Listener Submit Login Admin
-    const formLogin = document.getElementById("form-login");
-    if (formLogin) {
-        formLogin.addEventListener("submit", async (e) => {
-            e.preventDefault();
-            const email = document.getElementById("login-email").value.trim();
-            const password = document.getElementById("login-password").value;
-
-            try {
-                const { data, error } = await supabaseClient.auth.signInWithPassword({
-                    email: email,
-                    password: password,
-                });
-
-                if (error) {
-                    throw error;
-                }
-
-                alert("Selamat datang kembali, Admin!");
-                document.getElementById("form-login").reset();
-                hideLoginModal();
-            } catch (error) {
-                alert("Gagal Login: " + error.message);
-            }
-        });
+    if (error) {
+        alert("Gagal menambahkan kategori!");
+    } else {
+        alert("Kategori berhasil ditambahkan!");
+        document.getElementById("cat-name").value = "";
+        initApp(); 
     }
 }
 
-// ====== KONTROL MODAL LOGIN ======
+async function handleMenuSubmit(e) {
+    e.preventDefault();
+    
+    const categoryId = document.getElementById("menu-cat-select").value;
+    const title = document.getElementById("menu-title").value.trim();
+    const price = document.getElementById("menu-price").value;
+    const description = document.getElementById("menu-desc").value.trim();
+    
+    const imgFileInput = document.getElementById("menu-img");
+    const file = imgFileInput ? imgFileInput.files[0] : null;
+    
+    if (!file) {
+        alert("Silakan pilih file gambar katering terlebih dahulu!");
+        return;
+    }
+
+    try {
+        const submitBtn = e.target.querySelector("button[type='submit']");
+        const originalBtnText = submitBtn.innerText;
+        submitBtn.innerText = "Mengunggah Gambar...";
+        submitBtn.disabled = true;
+
+        const fileExt = file.name.split('.').pop();
+        const fileName = `${Date.now()}-${Math.random().toString(36).substring(2, 15)}.${fileExt}`;
+        const filePath = `menus/${fileName}`;
+
+        const { data: uploadData, error: uploadError } = await supabaseClient
+            .storage
+            .from('menu-images')
+            .upload(filePath, file);
+
+        if (uploadError) {
+            throw uploadError;
+        }
+
+        const { data: urlData } = supabaseClient
+            .storage
+            .from('menu-images')
+            .getPublicUrl(filePath);
+        
+        const imageUrl = urlData.publicUrl;
+
+        const { error: dbError } = await supabaseClient
+            .from('menu_items')
+            .insert([{
+                category_id: categoryId,
+                title: title,
+                price: parseFloat(price),
+                description: description,
+                image_url: imageUrl
+            }]);
+
+        if (dbError) {
+            throw dbError;
+        }
+
+        alert("Menu baru berhasil disimpan beserta foto!");
+        document.getElementById("form-menu").reset();
+        submitBtn.innerText = originalBtnText;
+        submitBtn.disabled = false;
+        initApp(); 
+
+    } catch (error) {
+        console.error("Terjadi kesalahan:", error);
+        alert("Gagal menambahkan menu: " + error.message);
+        
+        const submitBtn = e.target.querySelector("button[type='submit']");
+        if (submitBtn) {
+            submitBtn.innerText = "Simpan Item Menu";
+            submitBtn.disabled = false;
+        }
+    }
+}
+
+async function handleLoginSubmit(e) {
+    e.preventDefault();
+    const email = document.getElementById("login-email").value.trim();
+    const password = document.getElementById("login-password").value;
+
+    try {
+        const { data, error } = await supabaseClient.auth.signInWithPassword({
+            email: email,
+            password: password,
+        });
+
+        if (error) {
+            throw error;
+        }
+
+        alert("Selamat datang kembali, Admin!");
+        document.getElementById("form-login").reset();
+        hideLoginModal();
+    } catch (error) {
+        alert("Gagal Login: " + error.message);
+    }
+}
+
+// ====== MODAL LOGIN ADMIN ======
 function showLoginModal() {
     const modal = document.getElementById("login-modal");
     const overlay = document.getElementById("login-overlay");
@@ -491,27 +457,24 @@ function hideLoginModal() {
     if (overlay) overlay.classList.remove("open");
 }
 
-// ====== PENGATUR STATUS AUTENTIKASI ADMIN ======
+// ====== AUTENTIKASI ======
 function setupAuthListener() {
     supabaseClient.auth.onAuthStateChange((event, session) => {
         const adminNav = document.getElementById("admin-nav");
         const loginNav = document.getElementById("login-nav");
 
         if (session) {
-            // Jika admin login
             if (adminNav) adminNav.style.display = "inline";
             if (loginNav) loginNav.style.display = "none";
             hideLoginModal();
         } else {
-            // Jika admin logout / belum masuk
             if (adminNav) adminNav.style.display = "none";
             if (loginNav) loginNav.style.display = "inline";
-            switchTab('catalog'); // Kembalikan ke katalog
+            switchTab('catalog');
         }
     });
 }
 
-// ====== LOGOUT ADMIN ======
 async function logoutAdmin() {
     const yakin = confirm("Apakah Anda yakin ingin keluar dari Admin Panel?");
     if (yakin) {
