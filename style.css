@@ -641,6 +641,96 @@ body {
     transform: translateY(-2px);
 }
 
+/* Daftar Kategori Tersimpan (Admin) */
+.category-list-wrapper {
+    margin-top: 28px;
+    padding-top: 24px;
+    border-top: 1px dashed rgba(93, 67, 55, 0.15);
+}
+
+.category-list-heading {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--text-dark);
+    margin-bottom: 14px;
+}
+
+.category-list-admin {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    max-height: 320px;
+    overflow-y: auto;
+}
+
+.category-list-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    background: var(--bg-color);
+    border: 1px solid rgba(93, 67, 55, 0.08);
+    border-radius: var(--border-radius-sm);
+    padding: 10px 14px;
+}
+
+.category-list-row .cat-name-text {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text-dark);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.category-list-row .cat-item-count {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    font-weight: 500;
+}
+
+.category-list-actions {
+    display: flex;
+    gap: 8px;
+    flex-shrink: 0;
+}
+
+.btn-cat-edit, .btn-cat-delete {
+    border: none;
+    cursor: pointer;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8rem;
+    color: var(--white);
+    transition: var(--transition);
+}
+
+.btn-cat-edit {
+    background: #E67E22;
+}
+
+.btn-cat-edit:hover {
+    background: #D35400;
+    transform: scale(1.08);
+}
+
+.btn-cat-delete {
+    background: #E74C3C;
+}
+
+.btn-cat-delete:hover {
+    background: #C0392B;
+    transform: scale(1.08);
+}
+
+.category-list-empty {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+}
 /* Login Modal */
 .login-modal {
     display: none;
@@ -778,7 +868,12 @@ body {
         padding: 12px 14px;
     }
 
-    #admin-nav {
+    /* Saat admin login, script.js mengubah #admin-nav jadi display:inline,
+       sehingga link di dalamnya wrap seperti teks biasa. Selector ini
+       menyasar KHUSUS kondisi itu (tanpa menimpa saat display:none / logout)
+       supaya link admin tetap rapi satu baris per item. */
+    #admin-nav[style*="inline"] {
+        display: flex !important;
         flex-direction: column;
         width: 100%;
         gap: 4px;
