@@ -10,7 +10,7 @@ let menuItemsList = [];
 let cart = {}; // Format: { [itemId]: quantity }
 let orderHistoryList = [];
 let isAdmin = false; // Flag status login admin
-const WHATSAPP_NUMBER = "628123456789"; 
+const WHATSAPP_NUMBER = "+6285231339668"; 
 
 // ====== EVENT INITIALIZATION ======
 document.addEventListener("DOMContentLoaded", () => {
