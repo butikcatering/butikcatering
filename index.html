@@ -82,6 +82,14 @@
                         </div>
                         <button type="submit" class="btn btn-primary">Simpan Kategori</button>
                     </form>
+
+                    <!-- Daftar Kategori yang Sudah Ada -->
+                    <div class="category-list-wrapper">
+                        <h4 class="category-list-heading">Kategori Tersimpan</h4>
+                        <div id="category-list" class="category-list-admin">
+                            <p style="color: var(--text-muted); font-size: 0.85rem;">Memuat kategori...</p>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Form Tambah Menu Baru -->
@@ -286,6 +294,24 @@
         </div>
     </div>
     <div class="login-overlay" id="edit-menu-overlay" onclick="hideEditMenuModal()"></div>
+
+    <!-- Modal Edit Kategori (Sisi Pengelola - Sembunyi secara default) -->
+    <div class="login-modal" id="edit-category-modal">
+        <div class="login-card">
+            <span class="close-login" onclick="hideEditCategoryModal()">&times;</span>
+            <h3>Edit Kategori</h3>
+            <p>Ubah nama kategori / submenu katering</p>
+            <form id="form-edit-category">
+                <input type="hidden" id="edit-cat-id">
+                <div class="input-group">
+                    <label>Nama Kategori / Submenu</label>
+                    <input type="text" id="edit-cat-name" required>
+                </div>
+                <button type="submit" class="btn btn-primary">Simpan Perubahan</button>
+            </form>
+        </div>
+    </div>
+    <div class="login-overlay" id="edit-category-overlay" onclick="hideEditCategoryModal()"></div>
     <!-- Supabase JS Client library -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="script.js"></script>
