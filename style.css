@@ -777,3 +777,106 @@ body {
     background: #C0392B;
     transform: scale(1.03);
 }
+/* Location & Maps Section */
+.location-section {
+    margin-top: 80px;
+    background: var(--white);
+    padding: 50px;
+    border-radius: var(--border-radius-lg);
+    box-shadow: var(--shadow-soft);
+    border: 1px solid rgba(93, 67, 55, 0.03);
+}
+
+.location-grid {
+    display: grid;
+    grid-template-columns: 1.2fr 1.8fr;
+    gap: 50px;
+    align-items: center;
+}
+
+.location-info {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.location-tag {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    font-weight: 800;
+    color: var(--accent-color);
+}
+
+.location-info h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.3rem;
+    color: var(--primary-color);
+    line-height: 1.2;
+    margin-bottom: 5px;
+}
+
+.location-desc {
+    font-size: 0.95rem;
+    color: var(--text-muted);
+    margin-bottom: 20px;
+}
+
+.info-item {
+    display: flex;
+    gap: 20px;
+    align-items: flex-start;
+    padding-bottom: 12px;
+}
+
+.info-item i {
+    font-size: 1.3rem;
+    color: var(--accent-color);
+    background: var(--accent-light);
+    padding: 14px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+}
+
+.info-item h4 {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--text-dark);
+    margin-bottom: 2px;
+}
+
+.info-item p {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+}
+
+/* Bingkai Peta Premium */
+.location-map {
+    height: 420px;
+    border-radius: var(--border-radius-md);
+    overflow: hidden;
+    box-shadow: var(--shadow-medium);
+    border: 1px solid rgba(93, 67, 55, 0.05);
+}
+
+/* Responsif untuk Tampilan Layar HP */
+@media (max-width: 992px) {
+    .location-section {
+        padding: 30px 20px;
+        margin-top: 50px;
+    }
+    .location-grid {
+        grid-template-columns: 1fr;
+        gap: 35px;
+    }
+    .location-map {
+        height: 320px;
+    }
+    .location-info h2 {
+        font-size: 1.8rem;
+    }
+}
