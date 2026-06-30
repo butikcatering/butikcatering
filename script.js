@@ -412,3 +412,71 @@ document.getElementById("form-menu").addEventListener("submit", async (e) => {
         submitBtn.disabled = false;
     }
 });
+
+// Taruh kode ini di dalam fungsi initApp() atau di bagian paling bawah file script.js Anda
+
+// ====== KONTROL MODAL LOGIN ======
+function showLoginModal() {
+    document.getElementById("login-modal").classList.add("open");
+    document.getElementById("login-overlay").classList.add("open");
+}
+
+function hideLoginModal() {
+    document.getElementById("login-modal").classList.remove("open");
+    document.getElementById("login-overlay").classList.remove("open");
+}
+
+// ====== LISTEN PERUBAHAN AUTHENTICATION (Sangat Aman) ======
+// Fungsi ini otomatis mendeteksi apakah pengguna adalah Admin yang sah atau hanya Customer biasa
+supabaseClient.auth.onAuthStateChange((event, session) => {
+    const adminNav = document.getElementById("admin-nav");
+    const loginNav = document.getElementById("login-nav");
+
+    if (session) {
+        // Jika Admin sukses login
+        adminNav.style.display = "inline";
+        loginNav.style.display = "none";
+        hideLoginModal();
+    } else {
+        // Jika Admin belum login / sudah logout
+        adminNav.style.display = "none";
+        loginNav.style.display = "inline";
+        switchTab('catalog'); // Paksa kembali ke halaman katalog utama jika mencoba masuk tanpa login
+    }
+});
+
+// ====== PROSES LOGIN ADMIN ======
+document.getElementById("form-login").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const email = document.getElementById("login-email").value.trim();
+    const password = document.getElementById("login-password").value;
+
+    try {
+        const { data, error } = await supabaseClient.auth.signInWithPassword({
+            email: email,
+            password: password,
+        });
+
+        if (error) {
+            throw error;
+        }
+
+        alert("Selamat datang kembali, Admin!");
+        document.getElementById("form-login").reset();
+    } catch (error) {
+        alert("Gagal Login: " + error.message);
+    }
+});
+
+// ====== PROSES LOGOUT ADMIN ======
+async function logoutAdmin() {
+    const yakin = confirm("Apakah Anda yakin ingin keluar dari Admin Panel?");
+    if (yakin) {
+        const { error } = await supabaseClient.auth.signOut();
+        if (error) {
+            alert("Gagal Keluar: " + error.message);
+        } else {
+            alert("Anda telah keluar dari mode Admin.");
+        }
+    }
+}
