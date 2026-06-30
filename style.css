@@ -723,3 +723,57 @@ body {
         grid-template-columns: 1fr;
     }
 }
+
+/* Admin Actions on Menu Cards */
+.admin-card-actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 18px;
+    border-top: 1px dashed rgba(93, 67, 55, 0.1);
+    padding-top: 15px;
+    width: 100%;
+}
+
+.btn-card-edit {
+    background: #E67E22; /* Orange Premium */
+    color: var(--white);
+    border: none;
+    padding: 8px 16px;
+    border-radius: 30px;
+    cursor: pointer;
+    font-size: 0.8rem;
+    font-weight: 700;
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    transition: var(--transition);
+}
+
+.btn-card-delete {
+    background: #E74C3C; /* Red Soft */
+    color: var(--white);
+    border: none;
+    padding: 8px 16px;
+    border-radius: 30px;
+    cursor: pointer;
+    font-size: 0.8rem;
+    font-weight: 700;
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    transition: var(--transition);
+}
+
+.btn-card-edit:hover {
+    background: #D35400;
+    transform: scale(1.03);
+}
+
+.btn-card-delete:hover {
+    background: #C0392B;
+    transform: scale(1.03);
+}
