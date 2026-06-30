@@ -421,12 +421,18 @@ async function handleMenuSubmit(e) {
 
 async function handleLoginSubmit(e) {
     e.preventDefault();
-    const email = document.getElementById("login-email").value.trim();
+    let usernameInput = document.getElementById("login-email").value.trim();
     const password = document.getElementById("login-password").value;
+
+    // TRIK CERDAS: Jika Anda memasukkan "butikcatering" (bukan format email),
+    // sistem otomatis mengubahnya menjadi "butikcatering@butikcatering.com" di latar belakang
+    if (!usernameInput.includes("@")) {
+        usernameInput = `${usernameInput}@butikcatering.com`;
+    }
 
     try {
         const { data, error } = await supabaseClient.auth.signInWithPassword({
-            email: email,
+            email: usernameInput, // Mengirimkan format email bayangan ke Supabase
             password: password,
         });
 
@@ -441,7 +447,6 @@ async function handleLoginSubmit(e) {
         alert("Gagal Login: " + error.message);
     }
 }
-
 // ====== MODAL LOGIN ADMIN ======
 function showLoginModal() {
     const modal = document.getElementById("login-modal");
