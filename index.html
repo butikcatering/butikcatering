@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Butik Catering - Sajian Elegan & Premium</title>
+    <title>Butik Catering - Hangatnya Sajian Rumahan, Lezatnya Terasa</title>
     <link rel="stylesheet" href="style.css">
     <!-- Google Fonts & Font Awesome Icons -->
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..700;1,400..700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
@@ -17,19 +17,27 @@
         <div class="logo">
             <i class="fa-solid fa-utensils"></i> Butik Catering
         </div>
-        <nav class="nav-links">
-            <a href="#" onclick="switchTab('catalog')" class="active-nav" id="nav-catalog">Katalog</a>
+
+        <!-- Tombol Hamburger (hanya tampil di HP) -->
+        <button class="hamburger-btn" id="hamburger-btn" onclick="toggleMobileNav()" aria-label="Buka menu">
+            <i class="fa-solid fa-bars"></i>
+        </button>
+
+        <nav class="nav-links" id="nav-links">
+            <a href="#" onclick="switchTab('catalog'); closeMobileNav();" class="active-nav" id="nav-catalog">Katalog</a>
             
             <!-- Menu khusus Admin (Tersembunyi secara default) -->
             <span id="admin-nav" style="display: none;">
-                <a href="#" onclick="switchTab('admin')" id="nav-admin">Kelola Menu</a>
-                <a href="#" onclick="switchTab('history')" id="nav-history">Histori Pesanan</a>
-                <a href="#" onclick="logoutAdmin()" class="logout-btn"><i class="fa-solid fa-sign-out-alt"></i> Keluar</a>
+                <a href="#" onclick="switchTab('admin'); closeMobileNav();" id="nav-admin">Kelola Menu</a>
+                <a href="#" onclick="switchTab('history'); closeMobileNav();" id="nav-history">Histori Pesanan</a>
+                <a href="#" onclick="logoutAdmin(); closeMobileNav();" class="logout-btn"><i class="fa-solid fa-sign-out-alt"></i> Keluar</a>
             </span>
 
             <!-- Tombol Login (Muncul jika belum login) -->
-            <a href="#" id="login-nav" onclick="showLoginModal()"><i class="fa-solid fa-lock"></i> Admin Login</a>
+            <a href="#" id="login-nav" onclick="showLoginModal(); closeMobileNav();"><i class="fa-solid fa-lock"></i> Admin Login</a>
         </nav>
+        <div class="nav-overlay" id="nav-overlay" onclick="closeMobileNav()"></div>
+
         <div class="cart-btn" onclick="toggleCart()">
             <i class="fa-solid fa-shopping-bag"></i>
             <span class="badge" id="cart-badge">0</span>
@@ -42,9 +50,9 @@
         <!-- Tab 1: Catalog Makanan (Sisi Pelanggan) -->
         <section id="tab-catalog" class="tab-content active">
             <div class="hero">
-                <span class="hero-tag">Menerima Pesanan Yang Anda Inginkan</span>
+                <span class="hero-tag">Siap Antar Pesanan Sesuai Selera Anda</span>
                 <h1>Sajian Istimewa untuk Momen Berharga</h1>
-                <p>Butik Katering menyajikan hidangan dengan harga terjangkau, tapi soal rasa tidak kalah nikmat </p>
+                <p>Butik Catering menyajikan hidangan rumahan dengan harga bersahabat, dibuat langsung dengan bahan pilihan — soal rasa, tetap nomor satu.</p>
             </div>
             
             <!-- Tempat Kategori dan Menu dirender secara dinamis oleh JS -->
@@ -149,7 +157,7 @@
                 <div class="location-info">
                     <span class="location-tag">Lokasi Butik</span>
                     <h2>Kunjungi Butik Catering Kami</h2>
-                    <p class="location-desc">Silakan datang langsung ke dapur atau butik katering kami untuk berdiskusi mengenai menu acara spesial Anda, mencicipi *sample food*, atau merencanakan katering premium Anda.</p>
+                    <p class="location-desc">Yuk mampir langsung ke dapur kami untuk ngobrol santai soal menu acara Anda, icip-icip beberapa hidangan, sekaligus atur katering yang pas buat momen spesial Anda.</p>
                     
                     <div class="info-item">
                         <i class="fa-solid fa-map-location-dot"></i>
@@ -178,7 +186,7 @@
                 
                 <!-- Google Maps Embed Premium Frame -->
                 <div class="location-map">
-                   <iframe src="https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d150733.9083145722!2d113.7402887!3d-6.8920860964063095!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2dd9c1f52581f195%3A0x53ab0466782c60c8!2sDeta%20Catering!5e0!3m2!1sid!2sid!4v1782843144697!5m2!1sid!2sid" width="600" height="450" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="strict-origin-when-cross-origin"></iframe>
+                   <iframe src="https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d150733.9083145722!2d113.7402887!3d-6.8920860964063095!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2dd9c1f52581f195%3A0x53ab0466782c60c8!2sDeta%20Catering!5e0!3m2!1sid!2sid!4v1782843144697!5m2!1sid!2sid" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="strict-origin-when-cross-origin"></iframe>
                 </div>
 
             </div>
@@ -281,5 +289,18 @@
     <!-- Supabase JS Client library -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="script.js"></script>
+    <script>
+        // Script kecil khusus untuk buka/tutup menu hamburger di tampilan HP
+        function toggleMobileNav() {
+            document.getElementById('nav-links').classList.toggle('open');
+            document.getElementById('nav-overlay').classList.toggle('open');
+            document.getElementById('hamburger-btn').classList.toggle('open');
+        }
+        function closeMobileNav() {
+            document.getElementById('nav-links').classList.remove('open');
+            document.getElementById('nav-overlay').classList.remove('open');
+            document.getElementById('hamburger-btn').classList.remove('open');
+        }
+    </script>
 </body>
 </html>
