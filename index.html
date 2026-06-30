@@ -196,7 +196,47 @@
         </div>
     </div>
     <div class="login-overlay" id="login-overlay" onclick="hideLoginModal()"></div>
-
+<!-- Modal Edit Menu (Sisi Pengelola - Sembunyi secara default) -->
+    <div class="login-modal" id="edit-menu-modal">
+        <div class="login-card">
+            <span class="close-login" onclick="hideEditMenuModal()">&times;</span>
+            <h3>Edit Item Menu</h3>
+            <p>Ubah detail hidangan katering terpilih</p>
+            <form id="form-edit-menu">
+                <!-- Input tersembunyi untuk menyimpan ID menu -->
+                <input type="hidden" id="edit-menu-id">
+                
+                <div class="input-group">
+                    <label>Pilih Kategori</label>
+                    <select id="edit-menu-cat-select" required></select>
+                </div>
+                <div class="input-group">
+                    <label>Judul Menu / Makanan</label>
+                    <input type="text" id="edit-menu-title" required>
+                </div>
+                <div class="input-group">
+                    <label>Harga (Rp)</label>
+                    <input type="text" id="edit-menu-price" inputmode="numeric" required>
+                </div>
+                <div class="input-group">
+                    <label>Keterangan / Deskripsi</label>
+                    <textarea id="edit-menu-desc" rows="3" required></textarea>
+                </div>
+                <div class="input-group">
+                    <label>Ganti Gambar (Opsional)</label>
+                    <div class="file-upload-wrapper" style="height: 100px;">
+                        <input type="file" id="edit-menu-img" accept="image/*">
+                        <div class="file-upload-design">
+                            <i class="fa-solid fa-camera"></i>
+                            <span>Klik untuk Ganti Foto Baru</span>
+                        </div>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary">Simpan Perubahan</button>
+            </form>
+        </div>
+    </div>
+    <div class="login-overlay" id="edit-menu-overlay" onclick="hideEditMenuModal()"></div>
     <!-- Supabase JS Client library -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="script.js"></script>
