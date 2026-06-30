@@ -9,20 +9,24 @@ let categoriesList = [];
 let menuItemsList = [];
 let cart = {}; 
 let orderHistoryList = [];
+let isAdmin = false; // Flag untuk mendeteksi status login admin
 const WHATSAPP_NUMBER = "628123456789"; 
 
 // ====== EVENT INITIALIZATION ======
 document.addEventListener("DOMContentLoaded", () => {
     initApp();
     setupAuthListener();
+    setupPriceInputFormatting(); // Formatter harga di menu tambah
+    setupEditPriceInputFormatting(); // Formatter harga di menu edit
     
     // Bind form events safely
     bindFormEvent("form-category", handleCategorySubmit);
     bindFormEvent("form-menu", handleMenuSubmit);
     bindFormEvent("form-login", handleLoginSubmit);
+    bindFormEvent("form-edit-menu", handleEditMenuSubmit); // Daftarkan handler edit
 });
 
-// Helper untuk bind event form secara aman (anti-crash jika HTML belum ter-update)
+// Helper untuk bind event form secara aman
 function bindFormEvent(formId, handlerFunc) {
     const formElement = document.getElementById(formId);
     if (formElement) {
@@ -47,10 +51,45 @@ function switchTab(tabId) {
         tab.classList.remove('active');
     });
     targetTab.classList.add('active');
+
+    document.querySelectorAll('.nav-links a').forEach(link => {
+        link.classList.remove('active-nav');
+    });
+    const activeNavLink = document.getElementById(`nav-${tabId}`);
+    if (activeNavLink) activeNavLink.classList.add('active-nav');
     
     if (tabId === 'history') {
         fetchOrderHistory();
     }
+}
+
+// ====== FITUR HARGA OTOMATIS MEMAKAI TITIK ======
+function setupPriceInputFormatting() {
+    const priceInput = document.getElementById("menu-price");
+    if (!priceInput) return;
+
+    priceInput.addEventListener("input", (e) => {
+        let rawVal = e.target.value.replace(/\D/g, "");
+        if (rawVal) {
+            e.target.value = Number(rawVal).toLocaleString("id-ID");
+        } else {
+            e.target.value = "";
+        }
+    });
+}
+
+function setupEditPriceInputFormatting() {
+    const priceInput = document.getElementById("edit-menu-price");
+    if (!priceInput) return;
+
+    priceInput.addEventListener("input", (e) => {
+        let rawVal = e.target.value.replace(/\D/g, "");
+        if (rawVal) {
+            e.target.value = Number(rawVal).toLocaleString("id-ID");
+        } else {
+            e.target.value = "";
+        }
+    });
 }
 
 // ====== DATABASE OPERATIONS (FETCH) ======
@@ -96,14 +135,14 @@ async function fetchOrderHistory() {
     }
 }
 
-// ====== RENDER UI (Sisi Pelanggan) ======
+// ====== RENDER UI (Sisi Pelanggan & Tombol Admin) ======
 function renderCatalog() {
     const container = document.getElementById("catalog-container");
     if (!container) return;
     container.innerHTML = "";
 
     if (categoriesList.length === 0) {
-        container.innerHTML = `<div class="loading">Belum ada menu yang dibuat oleh Admin.</div>`;
+        container.innerHTML = `<div class="loading-spinner"><p style="color:var(--text-muted)">Belum ada hidangan katering yang dibuat oleh Admin.</p></div>`;
         return;
     }
 
@@ -121,14 +160,26 @@ function renderCatalog() {
         const grid = document.getElementById(`category-grid-${category.id}`);
 
         if (items.length === 0) {
-            if (grid) grid.innerHTML = `<p style="color:#aaa; grid-column: 1/-1;">Belum ada hidangan di kategori ini.</p>`;
+            if (grid) grid.innerHTML = `<p style="color: var(--text-muted); grid-column: 1/-1;">Belum ada hidangan di kategori ini.</p>`;
         } else {
             items.forEach(item => {
                 const qty = cart[item.id] || 0;
+                
+                // Set tombol aksi khusus Admin jika login aktif
+                let adminActionMarkup = "";
+                if (isAdmin) {
+                    adminActionMarkup = `
+                        <div class="admin-card-actions">
+                            <button class="btn-card-edit" onclick="editMenuItem(${item.id})"><i class="fa-solid fa-pen-to-square"></i> Edit</button>
+                            <button class="btn-card-delete" onclick="deleteMenuItem(${item.id})"><i class="fa-solid fa-trash"></i> Hapus</button>
+                        </div>
+                    `;
+                }
+
                 const card = document.createElement("div");
                 card.className = "menu-card";
                 card.innerHTML = `
-                    <img class="menu-img" src="${item.image_url}" alt="${item.title}" onerror="this.src='https://placehold.co/600x400?text=ussername'">
+                    <img class="menu-img" src="${item.image_url}" alt="${item.title}" onerror="this.src='https://placehold.co/600x400?text=Premium+Butik+Catering'">
                     <div class="menu-body">
                         <h3 class="menu-item-title">${item.title}</h3>
                         <p class="menu-item-desc">${item.description}</p>
@@ -138,6 +189,7 @@ function renderCatalog() {
                                 ${qty > 0 ? renderQtyController(item.id, qty) : `<button class="btn-add" onclick="updateCartQty(${item.id}, 1)">Tambah</button>`}
                             </div>
                         </div>
+                        ${adminActionMarkup}
                     </div>
                 `;
                 if (grid) grid.appendChild(card);
@@ -242,7 +294,7 @@ async function checkoutOrder() {
     const phoneInput = phoneInputEl.value.trim();
 
     if (!nameInput || !phoneInput) {
-        alert("Silakan isi Nama dan No. WhatsApp terlebih dahulu!");
+        alert("Silakan isi Nama Lengkap dan No. WhatsApp Anda terlebih dahulu!");
         return;
     }
 
@@ -285,7 +337,7 @@ async function checkoutOrder() {
 
     if (error) {
         console.error("Gagal menyimpan pesanan:", error);
-        alert("Terjadi gangguan server. Coba beberapa saat lagi.");
+        alert("Terjadi masalah pada koneksi database. Coba sesaat lagi.");
         return;
     }
 
@@ -307,7 +359,7 @@ function renderHistoryTable() {
     tbody.innerHTML = "";
 
     if (orderHistoryList.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="6" style="text-align: center;">Belum ada pesanan masuk.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: var(--text-muted);">Belum ada histori pesanan yang masuk.</td></tr>`;
         return;
     }
 
@@ -318,16 +370,15 @@ function renderHistoryTable() {
             <td>#${order.id}</td>
             <td><strong>${order.customer_name}</strong></td>
             <td>${order.customer_phone}</td>
-            <td style="max-width: 250px; font-size: 0.85rem; color:#555;">${itemsList}</td>
+            <td style="max-width: 250px; font-size: 0.85rem; color: var(--text-muted);">${itemsList}</td>
             <td><strong>Rp ${parseFloat(order.total_price).toLocaleString('id-ID')}</strong></td>
-            <td><span class="status-badge" style="background:#FFF9E6; color:#D4AF37; padding:4px 8px; border-radius:5px; font-size:0.8rem; font-weight:bold;">${order.status}</span></td>
+            <td><span class="status-badge" style="background:var(--accent-light); color:var(--primary-color); padding:5px 10px; border-radius:30px; font-size:0.8rem; font-weight:700;">${order.status}</span></td>
         `;
         tbody.appendChild(row);
     });
 }
 
 // ====== HANDLER SUBMIT FORM (SISI ADMIN) ======
-
 async function handleCategorySubmit(e) {
     e.preventDefault();
     const catNameInput = document.getElementById("cat-name").value.trim();
@@ -350,9 +401,11 @@ async function handleMenuSubmit(e) {
     
     const categoryId = document.getElementById("menu-cat-select").value;
     const title = document.getElementById("menu-title").value.trim();
-    const price = document.getElementById("menu-price").value;
-    const description = document.getElementById("menu-desc").value.trim();
     
+    const rawPrice = document.getElementById("menu-price").value;
+    const price = rawPrice.replace(/\./g, ""); // hilangkan titik
+
+    const description = document.getElementById("menu-desc").value.trim();
     const imgFileInput = document.getElementById("menu-img");
     const file = imgFileInput ? imgFileInput.files[0] : null;
     
@@ -424,15 +477,13 @@ async function handleLoginSubmit(e) {
     let usernameInput = document.getElementById("login-email").value.trim();
     const password = document.getElementById("login-password").value;
 
-    // TRIK CERDAS: Jika Anda memasukkan "butikcatering" (bukan format email),
-    // sistem otomatis mengubahnya menjadi "butikcatering@butikcatering.com" di latar belakang
     if (!usernameInput.includes("@")) {
         usernameInput = `${usernameInput}@butikcatering.com`;
     }
 
     try {
         const { data, error } = await supabaseClient.auth.signInWithPassword({
-            email: usernameInput, // Mengirimkan format email bayangan ke Supabase
+            email: usernameInput,
             password: password,
         });
 
@@ -447,7 +498,136 @@ async function handleLoginSubmit(e) {
         alert("Gagal Login: " + error.message);
     }
 }
-// ====== MODAL LOGIN ADMIN ======
+
+// ====== MODUL EDIT HIDANGAN KATERING ======
+
+// Fungsi memicu munculnya data lama di input Form Edit
+function editMenuItem(id) {
+    const item = menuItemsList.find(i => i.id === id);
+    if (!item) return;
+
+    document.getElementById("edit-menu-id").value = item.id;
+    document.getElementById("edit-menu-title").value = item.title;
+    document.getElementById("edit-menu-price").value = parseFloat(item.price).toLocaleString('id-ID');
+    document.getElementById("edit-menu-desc").value = item.description;
+
+    // Populasikan daftar kategori pilihan di dalam form edit
+    const select = document.getElementById("edit-menu-cat-select");
+    if (select) {
+        select.innerHTML = "";
+        categoriesList.forEach(cat => {
+            const option = document.createElement("option");
+            option.value = cat.id;
+            option.innerText = cat.name;
+            if (cat.id === item.category_id) option.selected = true;
+            select.appendChild(option);
+        });
+    }
+
+    showEditMenuModal();
+}
+
+async function handleEditMenuSubmit(e) {
+    e.preventDefault();
+
+    const id = document.getElementById("edit-menu-id").value;
+    const categoryId = document.getElementById("edit-menu-cat-select").value;
+    const title = document.getElementById("edit-menu-title").value.trim();
+    
+    const rawPrice = document.getElementById("edit-menu-price").value;
+    const price = rawPrice.replace(/\./g, ""); // hilangkan titik pembatas
+
+    const description = document.getElementById("edit-menu-desc").value.trim();
+    const imgFileInput = document.getElementById("edit-menu-img");
+    const file = imgFileInput ? imgFileInput.files[0] : null;
+
+    try {
+        const submitBtn = e.target.querySelector("button[type='submit']");
+        const originalBtnText = submitBtn.innerText;
+        submitBtn.innerText = "Menyimpan Perubahan...";
+        submitBtn.disabled = true;
+
+        let imageUrl = null;
+
+        // Jika admin mengunggah file foto pengganti
+        if (file) {
+            const fileExt = file.name.split('.').pop();
+            const fileName = `${Date.now()}-${Math.random().toString(36).substring(2, 15)}.${fileExt}`;
+            const filePath = `menus/${fileName}`;
+
+            const { data: uploadData, error: uploadError } = await supabaseClient
+                .storage
+                .from('menu-images')
+                .upload(filePath, file);
+
+            if (uploadError) throw uploadError;
+
+            const { data: urlData } = supabaseClient
+                .storage
+                .from('menu-images')
+                .getPublicUrl(filePath);
+            
+            imageUrl = urlData.publicUrl;
+        }
+
+        const updatePayload = {
+            category_id: categoryId,
+            title: title,
+            price: parseFloat(price),
+            description: description
+        };
+
+        if (imageUrl) {
+            updatePayload.image_url = imageUrl;
+        }
+
+        const { error: dbError } = await supabaseClient
+            .from('menu_items')
+            .update(updatePayload)
+            .eq('id', id);
+
+        if (dbError) throw dbError;
+
+        alert("Item menu berhasil diperbarui!");
+        document.getElementById("form-edit-menu").reset();
+        submitBtn.innerText = originalBtnText;
+        submitBtn.disabled = false;
+        hideEditMenuModal();
+        initApp(); // Muat ulang visual
+
+    } catch (error) {
+        console.error("Gagal mengedit:", error);
+        alert("Gagal menyimpan perubahan: " + error.message);
+        
+        const submitBtn = e.target.querySelector("button[type='submit']");
+        if (submitBtn) {
+            submitBtn.innerText = "Simpan Perubahan";
+            submitBtn.disabled = false;
+        }
+    }
+}
+
+// ====== PROSES HAPUS HIDANGAN ======
+async function deleteMenuItem(id) {
+    const yakin = confirm("Apakah Anda yakin ingin menghapus hidangan ini?");
+    if (!yakin) return;
+
+    try {
+        const { error } = await supabaseClient
+            .from('menu_items')
+            .delete()
+            .eq('id', id);
+
+        if (error) throw error;
+
+        alert("Hidangan berhasil dihapus!");
+        initApp(); // Refresh data
+    } catch (error) {
+        alert("Gagal menghapus: " + error.message);
+    }
+}
+
+// ====== MODAL POPUPS ======
 function showLoginModal() {
     const modal = document.getElementById("login-modal");
     const overlay = document.getElementById("login-overlay");
@@ -462,24 +642,42 @@ function hideLoginModal() {
     if (overlay) overlay.classList.remove("open");
 }
 
-// ====== AUTENTIKASI ======
+function showEditMenuModal() {
+    const modal = document.getElementById("edit-menu-modal");
+    const overlay = document.getElementById("edit-menu-overlay");
+    if (modal) modal.classList.add("open");
+    if (overlay) overlay.classList.add("open");
+}
+
+function hideEditMenuModal() {
+    const modal = document.getElementById("edit-menu-modal");
+    const overlay = document.getElementById("edit-menu-overlay");
+    if (modal) modal.classList.remove("open");
+    if (overlay) overlay.classList.remove("open");
+}
+
+// ====== PENGATUR STATUS LOGIN ADMIN ======
 function setupAuthListener() {
     supabaseClient.auth.onAuthStateChange((event, session) => {
         const adminNav = document.getElementById("admin-nav");
         const loginNav = document.getElementById("login-nav");
 
         if (session) {
+            isAdmin = true; // Nyalakan flag admin
             if (adminNav) adminNav.style.display = "inline";
             if (loginNav) loginNav.style.display = "none";
             hideLoginModal();
         } else {
+            isAdmin = false; // Matikan flag admin
             if (adminNav) adminNav.style.display = "none";
             if (loginNav) loginNav.style.display = "inline";
-            switchTab('catalog');
+            switchTab('catalog'); 
         }
+        renderCatalog(); // Segarkan ulang katalog untuk memunculkan/menyembunyikan tombol Edit & Hapus secara otomatis
     });
 }
 
+// ====== PROSES LOGOUT ADMIN ======
 async function logoutAdmin() {
     const yakin = confirm("Apakah Anda yakin ingin keluar dari Admin Panel?");
     if (yakin) {
