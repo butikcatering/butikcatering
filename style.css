@@ -758,20 +758,21 @@ body {
 /* Footer */
 .site-footer {
     text-align: center;
-    padding: 24px 16px;
-    border-top: 1px solid rgba(93, 67, 55, 0.08);
-    background: var(--white);
+    padding: 28px 16px;
+    margin-top: 40px;
+    background: var(--text-dark);
 }
 
 .site-footer p {
     font-size: 0.8rem;
-    color: var(--text-muted);
+    color: rgba(255, 255, 255, 0.55);
     margin: 0;
+    letter-spacing: 0.5px;
 }
 
 .site-footer .footer-brand {
     font-weight: 700;
-    color: var(--primary-color);
+    color: var(--accent-color);
 }
 
 /* Login Modal */
@@ -1178,22 +1179,3 @@ body {
         font-size: 1.8rem;
     }
 }
-/* Footer */
-.site-footer {
-    text-align: center;
-    padding: 24px 16px;
-    border-top: 1px solid rgba(93, 67, 55, 0.08);
-    background: var(--white);
-}
-
-.site-footer p {
-    font-size: 0.8rem;
-    color: var(--text-muted);
-    margin: 0;
-}
-
-.site-footer .footer-brand {
-    font-weight: 700;
-    color: var(--primary-color);
-}
-    
