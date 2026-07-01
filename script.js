@@ -379,6 +379,7 @@ function renderCart() {
             const row = document.createElement("div");
             row.className = "cart-item-row";
             row.innerHTML = `
+                <img class="cart-item-img" src="${item.image_url}" alt="${item.title}" onerror="this.src='https://placehold.co/100x100?text=Butik+Catering'">
                 <div class="cart-item-info">
                     <h4>${item.title}</h4>
                     <span>Rp ${parseFloat(item.price).toLocaleString('id-ID')} x ${qty}</span>
