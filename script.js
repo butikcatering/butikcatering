@@ -195,7 +195,7 @@ function renderCatalog() {
                         <h3 class="menu-item-title">${item.title}</h3>
                         <p class="menu-item-desc">${item.description}</p>
                         <div class="menu-item-footer">
-                            <span class="menu-item-price">Rp ${parseFloat(item.price).toLocaleString('id-ID')}</span>
+                            <span class="menu-item-price">Rp ${parseFloat(item.price).toLocaleString('id-ID')}<span class="price-unit">/pcs</span></span>
                             ${cartActionMarkup}
                         </div>
                         ${adminActionMarkup}
