@@ -759,20 +759,18 @@ body {
 .site-footer {
     text-align: center;
     padding: 28px 16px;
-    margin-top: 40px;
-    background: var(--text-dark);
 }
 
 .site-footer p {
     font-size: 0.8rem;
-    color: rgba(255, 255, 255, 0.55);
+    color: #6B6560;
     margin: 0;
     letter-spacing: 0.5px;
 }
 
 .site-footer .footer-brand {
     font-weight: 700;
-    color: var(--accent-color);
+    color: #3A3532;
 }
 
 /* Login Modal */
