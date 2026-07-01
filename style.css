@@ -307,6 +307,13 @@ body {
     font-size: 1.15rem;
 }
 
+.menu-item-price .price-unit {
+    font-weight: 500;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    margin-left: 2px;
+}
+
 /* Quantity Controller ala Shopee */
 .qty-controller {
     display: flex;
